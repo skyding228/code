@@ -7,9 +7,10 @@
     <groupId>fun.hereis.code</groupId>
     <artifactId>code</artifactId>
     <packaging>pom</packaging>
-    <version>0.1</version>
+    <version>1.0</version>
     <modules>
         <module>utils</module>
+        <module>spring</module>
     </modules>
     
     <name>common code</name>
