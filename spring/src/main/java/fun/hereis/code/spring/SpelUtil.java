@@ -49,6 +49,17 @@ public class SpelUtil {
     }
 
     /**
+     * 判断表达式断言是否正确，只有表达式结果返回'true'时才是成功，其他均失败
+     *
+     * @param spel
+     * @param context
+     * @return
+     */
+    public static boolean predict(String spel, Object context) {
+        return Boolean.valueOf(exec(spel, context));
+    }
+
+    /**
      * 执行spel 模板表达式
      *
      * @param spel

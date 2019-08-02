@@ -5,11 +5,12 @@
     <parent>
         <artifactId>code</artifactId>
         <groupId>fun.hereis.code</groupId>
-        <version>1.0</version>
+        <version>1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>spring</artifactId>
+    <version>${release.version}</version>
     <properties>
         <spring.version>4.3.3.RELEASE</spring.version>
     </properties>
