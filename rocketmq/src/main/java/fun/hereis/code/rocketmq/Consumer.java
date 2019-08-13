@@ -4,6 +4,9 @@ import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
+import org.apache.rocketmq.client.consumer.store.LocalFileOffsetStore;
+import org.apache.rocketmq.client.consumer.store.OffsetStore;
+import org.apache.rocketmq.client.consumer.store.RemoteBrokerOffsetStore;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.message.MessageExt;
 
@@ -41,6 +44,9 @@ public class Consumer {
 
         //Launch the consumer instance.
         consumer.start();
+
+        ConsumeMessageConcurrentlyServiceDecorator consumeService = new ConsumeMessageConcurrentlyServiceDecorator(consumer.getDefaultMQPushConsumerImpl().getConsumeMessageService(), consumer.getConsumerGroup());
+        consumer.getDefaultMQPushConsumerImpl().setConsumeMessageService(consumeService);
 
         System.out.printf("Consumer Started.%n");
 
