@@ -52,10 +52,11 @@ public class ConsumeMessageConcurrentlyServiceDecorator implements ConsumeMessag
     }
 
     /**
-     * 调整线程数
+     * 获取消费者线程池
+     * @return
      */
-    public void adjustThreads(){
-
+    public ThreadPoolExecutor getConsumeExecutor() {
+        return consumeExecutor;
     }
 
     /**
