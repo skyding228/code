@@ -11,10 +11,8 @@ import org.apache.rocketmq.common.message.MessageExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,7 +57,7 @@ public class ConsumerFactory {
             } else if (StringUtils.isNotEmpty(defaultNameSrv)) {
                 consumer.setNamesrvAddr(defaultNameSrv);
             }
-            consumer.registerMessageListener(createListener(method, bean));
+            consumer.registerMessageListener(createListener(method, bean, consumerGroup));
             try {
                 consumer.subscribe(config.topic(), config.subExpression());
                 consumer.start();
@@ -70,13 +68,13 @@ public class ConsumerFactory {
 
             ConsumeMessageConcurrentlyServiceDecorator consumeService = new ConsumeMessageConcurrentlyServiceDecorator(consumer.getDefaultMQPushConsumerImpl().getConsumeMessageService(), consumer.getConsumerGroup());
             consumer.getDefaultMQPushConsumerImpl().setConsumeMessageService(consumeService);
-
+            MqStatistic.initConsumerStatistic(config.topic(), consumerGroup, consumeService.getConsumeExecutor());
             log.info("initialize consumer {} for {} successfully.", consumer, consumerGroup);
         }
 
     }
 
-    private static MessageListenerConcurrently createListener(Method method, Object bean) {
+    private static MessageListenerConcurrently createListener(Method method, Object bean, String consumerGroup) {
 
         /**
          * 仅能获取到3个参数，String类型的消息，原始消息 MessageExt，及上下文信息ConsumeConcurrentlyContext
@@ -92,13 +90,15 @@ public class ConsumerFactory {
         return new MessageListenerConcurrently() {
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
-                msgs.forEach(msg -> consume(msg, context, method, bean));
+                msgs.forEach(msg -> {
+                    consume(msg, context, method, bean, consumerGroup);
+                });
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         };
     }
 
-    private static void consume(MessageExt msg, ConsumeConcurrentlyContext context, Method method, Object bean) {
+    private static void consume(MessageExt msg, ConsumeConcurrentlyContext context, Method method, Object bean, String consumerGroup) {
         Object[] args = new Object[method.getParameterCount()];
         String msgStr = new String(msg.getBody(), StandardCharsets.UTF_8);
         Class[] types = method.getParameterTypes();
@@ -115,6 +115,9 @@ public class ConsumerFactory {
             method.invoke(bean, args);
         } catch (Exception e) {
             log.error("An error occurs while {} consuming {}", method, msg, e);
+        } finally {
+            MqStatistic.incrementConsumeCount(consumerGroup);
+            //TODO log
         }
     }
 

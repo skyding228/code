@@ -1,6 +1,8 @@
 package fun.hereis.code.rocketmq;
 
-import java.util.concurrent.ThreadPoolExecutor;
+import org.apache.rocketmq.common.ThreadFactoryImpl;
+
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -10,25 +12,88 @@ import java.util.concurrent.atomic.LongAdder;
  */
 public class ConsumerStatistic {
     /**
+     * 线程池相关
+     */
+    int keepAliveMins = 5,maxThreads = 1000,minThreads = 1;
+    /**
      * 记录消费总数，使用longAdder支持并发更新
      */
     LongAdder count = new LongAdder();
 
     String topicName;
 
+    String consumerGroup;
     /**
-     * 需要保留的记录数
+     * 上次调整线程时间
      */
-    final int tpsRecordsCount = 3;
-
+    private long lastAdjustAt = System.currentTimeMillis();
     /**
-     * tps数据
+     * 上次tps
      */
-    long[] tpsRecords = new long[tpsRecordsCount];
+    private long lastTps = 0;
     /**
-     * 构造环形数据结构，指向头元素
+     * 上次线程数量
      */
-    int head = 0;
+    private int lastThreads = minThreads;
 
     ThreadPoolExecutor executor;
+
+    private ScheduledExecutorService adjustScheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+
+
+    private void adjustThreads(){
+        int currentThreads = executor.getActiveCount();
+        //说明线程空闲时间较长，自动销毁了线程
+        if(currentThreads < lastThreads){
+            addAThread();
+            return;
+        }
+        //计算tps
+        long periodSeconds = (System.currentTimeMillis() - lastAdjustAt)/1000;
+        long tps = (count.sumThenReset()-lastTps)/periodSeconds;
+        if(tps > lastTps){
+            lastTps = tps;
+            addAThread();
+            return;
+        }
+        //其他情况不能关闭线程，需要等到消费者空闲的时候线程自动减少
+    }
+
+    private void addAThread(){
+        int currentThreads = executor.getActiveCount();
+        currentThreads ++;
+        lastThreads = currentThreads;
+        executor.setCorePoolSize(lastThreads);
+        executor.prestartAllCoreThreads();
+    }
+
+    public ConsumerStatistic(String topicName, String consumerGroup, ThreadPoolExecutor executor) {
+        this.topicName = topicName;
+        this.consumerGroup = consumerGroup;
+        if(executor == null){
+            executor = new ThreadPoolExecutor(minThreads,maxThreads, keepAliveMins,TimeUnit.MINUTES,new LinkedBlockingQueue<>());
+        }
+        this.executor = executor;
+        executor.setCorePoolSize(minThreads);
+        executor.setMaximumPoolSize(maxThreads);
+        executor.setKeepAliveTime(keepAliveMins, TimeUnit.MINUTES);
+        executor.allowCoreThreadTimeOut(true);
+        executor.prestartAllCoreThreads();
+        executor.setThreadFactory(new ThreadFactoryImpl(consumerGroup + "_Thread_"));
+
+        adjustScheduledExecutor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                adjustThreads();
+            }
+        },30,30,TimeUnit.SECONDS);
+    }
+
+    /**
+     * 消费了一条消息，更新统计信息
+     */
+    public void incrementConsumeCount(){
+        count.increment();
+    }
+
 }

@@ -4,11 +4,8 @@ import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
-import org.apache.rocketmq.client.consumer.store.LocalFileOffsetStore;
-import org.apache.rocketmq.client.consumer.store.OffsetStore;
-import org.apache.rocketmq.client.consumer.store.RemoteBrokerOffsetStore;
-import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.common.message.MessageExt;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -16,7 +13,14 @@ import java.util.List;
  * @author weichunhe
  * created at 2019/4/16
  */
+@Component
 public class Consumer {
+
+    @RocketmqListener(topic = "TopicTest", consumerGroup = "test")
+    public void consume(String msgStr, MessageExt msg) {
+        System.out.printf("%s Receive New Messages: %s %s %n", Thread.currentThread().getName(), msgStr, new String(msg.getBody()));
+    }
+
 
     public static void main(String[] args) throws Exception {
 

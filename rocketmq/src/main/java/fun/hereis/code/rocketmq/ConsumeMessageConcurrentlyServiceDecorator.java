@@ -35,10 +35,7 @@ public class ConsumeMessageConcurrentlyServiceDecorator implements ConsumeMessag
         this.consumerGroup = consumerGroup;
         this.service = service;
         accessConsumeExecutor();
-        consumeExecutor.setCorePoolSize(1);
-        consumeExecutor.setKeepAliveTime(5, TimeUnit.MINUTES);
-        consumeExecutor.allowCoreThreadTimeOut(true);
-        consumeExecutor.setThreadFactory(new ThreadFactoryImpl(consumerGroup + "_Thread_"));
+
     }
 
     private void accessConsumeExecutor() {
