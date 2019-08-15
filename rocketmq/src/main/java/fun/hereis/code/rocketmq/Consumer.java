@@ -5,8 +5,11 @@ import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -16,8 +19,17 @@ import java.util.List;
 @Component
 public class Consumer {
 
+
+    @RocketmqProducer(topic = "abc")
+//    @Autowired
+//    @Qualifier("myRocketmqProducer")
+    private MyRocketmqProducer producer;
+
+
+
     @RocketmqListener(topic = "TopicTest", consumerGroup = "test")
     public void consume(String msgStr, MessageExt msg) {
+        System.out.println(producer);
         System.out.printf("%s Receive New Messages: %s %s %n", Thread.currentThread().getName(), msgStr, new String(msg.getBody()));
     }
 
