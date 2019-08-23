@@ -16,7 +16,7 @@
     <modules>
         <module>utils</module>
         <module>spring</module>
-        <module>rocketmq</module>
+        <!--<module>rocketmq</module>-->
     </modules>
     
     <name>common code</name>
