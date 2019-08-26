@@ -5,7 +5,6 @@ import org.springframework.util.Assert;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.LongAdder;
 
 /**
  * mq 统计分析工具类

@@ -9,12 +9,18 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * RSA工具类
+ */
 public class RSAUtil {
     private static Provider provider = new org.bouncycastle.jce.provider.BouncyCastleProvider();
     private static PublicKey publicKey = getPublicKey("MDEwDQYJKoZIhvcNAQEBBQADIAAwHQIWD6FvxDSe1TSmo+vCjKm1prkN1oTf6wIDAQAB");
     private static PrivateKey privateKey = getPrivateKey("MIGPAgEAMA0GCSqGSIb3DQEBAQUABHsweQIBAAIWD6FvxDSe1TSmo+vCjKm1prkN1oTf6wIDAQABAhYAtU5kpAO8Yl3YmIzlEtoyO/h1cBlFAgs/2GZnmFeAhjhB1QILPqyGnIrwmbxbur8CCyukAtObGWy70iaFAgswfafA4rb5G4UVXQILFhuLZfBx1cO88vg=");
 
     static {
+        /**
+         * 提供低于512的密钥对实现
+         */
         Security.addProvider(provider);
     }
 
@@ -22,8 +28,8 @@ public class RSAUtil {
     /**
      * 生成指定长度的密钥对
      *
-     * @param length
-     * @throws Exception
+     * @param length 密钥对长度
+     * @throws Exception 异常
      */
     public static void gen(int length) throws Exception {
         final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", provider);
@@ -37,7 +43,7 @@ public class RSAUtil {
     /**
      * 从字符串转换为公钥
      * @param base64PublicKey 公钥字符串
-     * @return
+     * @return 公钥
      */
     public static PublicKey getPublicKey(String base64PublicKey) {
         PublicKey publicKey = null;
@@ -55,7 +61,7 @@ public class RSAUtil {
     /**
      * 从字符串转换为私钥
      * @param base64PrivateKey 私钥字符串
-     * @return
+     * @return 私钥
      */
     public static PrivateKey getPrivateKey(String base64PrivateKey) {
         PrivateKey privateKey = null;

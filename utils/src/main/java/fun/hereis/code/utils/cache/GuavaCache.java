@@ -18,7 +18,7 @@ public class GuavaCache<V> {
     /**
      * 加载缓存接口
      *
-     * @param <V>
+     * @param <V> 加载器
      */
     public interface Loader<V> {
         V load();
@@ -91,7 +91,7 @@ public class GuavaCache<V> {
      * @param refreshAfterMinutes 缓存刷新时间间隔，分钟数
      * @param loader              缓存加载器
      * @param <V>                 缓存值类型
-     * @return
+     * @return 缓存对象
      */
     public static <V> GuavaCache<V> asyncGuavaCache(long refreshAfterMinutes, Loader<V> loader) {
         LoadingCache<String, V> loadingCache = asyncRefreshCache(refreshAfterMinutes, new CacheLoader<String, V>() {
@@ -107,10 +107,10 @@ public class GuavaCache<V> {
     /**
      * 创建一个异步刷新的缓存,key类型为string
      *
-     * @param refreshAfterMinutes
-     * @param loader
-     * @param <V>
-     * @return
+     * @param refreshAfterMinutes 缓存刷新时间间隔，分钟数
+     * @param loader              缓存加载器
+     * @param <V>                 缓存值类型
+     * @return 缓存对象
      */
     public static <V> LoadingCache<String, V> asyncRefreshCache(long refreshAfterMinutes, CacheLoader<String, V> loader) {
         return CacheBuilder.newBuilder().refreshAfterWrite(refreshAfterMinutes, TimeUnit.MINUTES).build(CacheLoader.asyncReloading(loader, executor));
