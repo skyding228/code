@@ -11,20 +11,15 @@
 
     <artifactId>spring</artifactId>
     <version>${release.version}</version>
-    <properties>
-        <spring.version>4.3.3.RELEASE</spring.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>18.0</version>
+            <groupId>fun.hereis.code</groupId>
+            <artifactId>utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

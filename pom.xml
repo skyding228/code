@@ -73,6 +73,15 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>fun.hereis.code</groupId>
+                <artifactId>utils</artifactId>
+                <version>${release.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
@@ -142,5 +151,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
