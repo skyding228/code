@@ -4,7 +4,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.checkerframework.checker.units.qual.K;
 
 import java.util.concurrent.*;
 
@@ -78,7 +77,7 @@ public class GuavaCache<V> {
     /**
      * 刷新缓存的执行器
      */
-    private static Executor executor = new ThreadPoolExecutor(3, 10, 10, TimeUnit.MINUTES,
+    public static Executor REFRESH_EXECUTOR = new ThreadPoolExecutor(3, 10, 10, TimeUnit.MINUTES,
             new LinkedBlockingQueue<>(3),
             new ThreadFactoryBuilder().
                     setNameFormat("GuavaCache-%d").
@@ -113,8 +112,8 @@ public class GuavaCache<V> {
      * @param <V>                 缓存值类型
      * @return 缓存对象
      */
-    public static <K,V> LoadingCache<K, V> asyncRefreshCache(long refreshAfterMinutes, CacheLoader<K, V> loader) {
-        return CacheBuilder.newBuilder().refreshAfterWrite(refreshAfterMinutes, TimeUnit.MINUTES).build(CacheLoader.asyncReloading(loader, executor));
+    public static <K, V> LoadingCache<K, V> asyncRefreshCache(long refreshAfterMinutes, CacheLoader<K, V> loader) {
+        return CacheBuilder.newBuilder().refreshAfterWrite(refreshAfterMinutes, TimeUnit.MINUTES).build(CacheLoader.asyncReloading(loader, REFRESH_EXECUTOR));
     }
 
 }
