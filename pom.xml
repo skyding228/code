@@ -79,7 +79,12 @@
             <dependency>
                 <groupId>fun.hereis.code</groupId>
                 <artifactId>utils</artifactId>
-                <version>${release.version}</version>
+                <version>${version}</version>
+            </dependency>
+            <dependency>
+                <groupId>fun.hereis.code</groupId>
+                <artifactId>spring</artifactId>
+                <version>${version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
