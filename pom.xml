@@ -12,7 +12,7 @@
     <groupId>fun.hereis.code</groupId>
     <artifactId>code</artifactId>
     <packaging>pom</packaging>
-    <version>1.5</version>
+    <version>1.6.RELEASE</version>
     <modules>
         <module>utils</module>
         <module>spring</module>
@@ -74,20 +74,6 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>fun.hereis.code</groupId>
-                <artifactId>utils</artifactId>
-                <version>${version}</version>
-            </dependency>
-            <dependency>
-                <groupId>fun.hereis.code</groupId>
-                <artifactId>spring</artifactId>
-                <version>${version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <build>
         <plugins>
             <plugin>

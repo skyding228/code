@@ -40,7 +40,7 @@ public class GuavaCache<V> {
     /**
      * 获取缓存值
      *
-     * @return
+     * @return 缓存值
      */
     public V get() {
         try {
@@ -109,6 +109,7 @@ public class GuavaCache<V> {
      *
      * @param refreshAfterMinutes 缓存刷新时间间隔，分钟数
      * @param loader              缓存加载器
+     * @param <K>                 缓存键类型
      * @param <V>                 缓存值类型
      * @return 缓存对象
      */

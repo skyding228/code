@@ -17,7 +17,9 @@ public class CollectionUtil {
     /**
      * 摘取列表数据中的部分数据
      *
+     * @param collection 需要操作的集合
      * @param pick 从对象中提取字符串的lambda表达式
+     *
      * @return 提取后的字符串列表
      */
     public static List<String> pick(Collection collection, Pick pick) {
