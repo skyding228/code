@@ -12,7 +12,7 @@
     <groupId>fun.hereis.code</groupId>
     <artifactId>code</artifactId>
     <packaging>pom</packaging>
-    <version>1.6.RELEASE</version>
+    <version>1.7.RLS</version>
     <modules>
         <module>utils</module>
         <module>spring</module>

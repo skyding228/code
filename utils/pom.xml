@@ -5,12 +5,12 @@
     <parent>
         <artifactId>code</artifactId>
         <groupId>fun.hereis.code</groupId>
-        <version>1.6.RELEASE</version>
+        <version>1.7.RLS</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>utils</artifactId>
-    <version>1.6.RELEASE</version>
+    <version>1.7.RLS</version>
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
