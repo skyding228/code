@@ -1,5 +1,6 @@
 package fun.hereis.code.utils.cache;
 
+import com.google.common.base.Ticker;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -32,6 +33,8 @@ public class GuavaCache<V> {
      * guava 缓存，只有一个key，value
      */
     private LoadingCache<String, V> cache;
+
+    private GuavaTicker ticker;
     /**
      * 唯一的一个key值
      */
@@ -52,6 +55,15 @@ public class GuavaCache<V> {
     }
 
     /**
+     * 获取时钟，通过拨动时钟，模拟时间流逝，可以方便单元测试
+     *
+     * @return 时钟
+     */
+    public GuavaTicker getTicker() {
+        return ticker;
+    }
+
+    /**
      * 强制刷新缓存
      */
     public void refresh() {
@@ -68,9 +80,10 @@ public class GuavaCache<V> {
      * @param cache
      * @param loader
      */
-    private GuavaCache(LoadingCache<String, V> cache, Loader<V> loader) {
+    private GuavaCache(LoadingCache<String, V> cache, Loader<V> loader, GuavaTicker ticker) {
         this.cache = cache;
         this.loader = loader;
+        this.ticker = ticker;
         refresh();
     }
 
@@ -94,13 +107,14 @@ public class GuavaCache<V> {
      * @return 缓存对象
      */
     public static <V> GuavaCache<V> asyncGuavaCache(long refreshAfterMinutes, Loader<V> loader) {
+        GuavaTicker ticker = new GuavaTicker();
         LoadingCache<String, V> loadingCache = asyncRefreshCache(refreshAfterMinutes, new CacheLoader<String, V>() {
             @Override
             public V load(String key) throws Exception {
                 return loader.load();
             }
-        });
-        return new GuavaCache(loadingCache, loader);
+        }, ticker);
+        return new GuavaCache(loadingCache, loader, ticker);
     }
 
 
@@ -117,4 +131,17 @@ public class GuavaCache<V> {
         return CacheBuilder.newBuilder().refreshAfterWrite(refreshAfterMinutes, TimeUnit.MINUTES).build(CacheLoader.asyncReloading(loader, REFRESH_EXECUTOR));
     }
 
+
+    /**
+     * 创建一个异步刷新的缓存,使用ticker ,方便单元测试
+     *
+     * @param refreshAfterMinutes 缓存刷新时间间隔，分钟数
+     * @param loader              缓存加载器
+     * @param <K>                 缓存键类型
+     * @param <V>                 缓存值类型
+     * @return 缓存对象
+     */
+    public static <K, V> LoadingCache<K, V> asyncRefreshCache(long refreshAfterMinutes, CacheLoader<K, V> loader, Ticker ticker) {
+        return CacheBuilder.newBuilder().ticker(ticker).refreshAfterWrite(refreshAfterMinutes, TimeUnit.MINUTES).build(CacheLoader.asyncReloading(loader, REFRESH_EXECUTOR));
+    }
 }
