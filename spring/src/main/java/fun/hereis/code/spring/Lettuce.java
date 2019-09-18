@@ -99,6 +99,19 @@ public class Lettuce {
         return hostAndPorts;
     }
 
+    /**
+     * 同步请求获取整形类型
+     * @param key
+     * @return null 表示不存在，或其他值
+     */
+    public static Long getLong(String key){
+        String val = sync().get(key);
+        if (org.springframework.util.StringUtils.isEmpty(val)) {
+            return null;
+        }
+        return Long.valueOf(val);
+    }
+
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         sync().set("c", "c");
         sync().set("a", "a");
