@@ -1,5 +1,7 @@
 package fun.hereis.code.utils;
 
+import com.google.common.base.Ticker;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
@@ -12,6 +14,8 @@ import org.junit.Test;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * @author weichunhe
@@ -84,6 +88,50 @@ public class TestGuavaCache {
         String v = cache.get();
         System.out.println("=============" + v);
         Assert.assertEquals("初始化失败", v, v);
+    }
+
+    /**
+     * 测试多线程会不会重复加载
+     */
+    @Test
+    public void testMultiThread() throws Exception {
+        LongAdder syncCount = new LongAdder();
+        LongAdder asyncCount = new LongAdder();
+        GuavaTicker ticker = new GuavaTicker();
+        LoadingCache<String, String> async = CacheBuilder.newBuilder().ticker(ticker).refreshAfterWrite(Duration.ofSeconds(100)).build(CacheLoader.asyncReloading(
+                new CacheLoader<String, String>() {
+                    @Override
+                    public String load(String key) throws Exception {
+                        try {
+                            asyncCount.increment();
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        return key + ":async" + asyncCount.sum();
+                    }
+                }
+                , GuavaCache.REFRESH_EXECUTOR));
+
+        LoadingCache<String, String> sync = CacheBuilder.newBuilder().ticker(ticker).refreshAfterWrite(Duration.ofSeconds(100)).build(CacheLoader.from(k -> {
+            try {
+                syncCount.increment();
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return k + ":sync" + syncCount.sum();
+        }));
+
+        System.out.println(async.get("a"));
+        System.out.println(sync.get("a"));
+        System.out.println(async.get("a"));
+        System.out.println(sync.get("a"));
+        ticker.tick(Duration.ofSeconds(1000));
+        System.out.println(async.get("a"));
+        System.out.println(sync.get("a"));
+
+        Thread.sleep(3000);
     }
 
 }
