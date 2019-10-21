@@ -29,7 +29,11 @@ public class SwaggerConfiguration {
     public Docket controllerApi() {
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .groupName(swaggerInfo.getGroupName())
+
                 .apiInfo(apiInfo());
+        if (!StringUtils.isEmpty(swaggerInfo.getHost())) {
+            docket.host(swaggerInfo.getHost());
+        }
         ApiSelectorBuilder builder = docket.select();
         if (!StringUtils.isEmpty(swaggerInfo.getBasePackage())) {
             builder = builder.apis(RequestHandlerSelectors.basePackage(swaggerInfo.getBasePackage()));

@@ -21,6 +21,8 @@ public class SwaggerInfo {
 
     private String license = "Apache License Version 2.0";
 
+    private String host;
+
     public String getGroupName() {
         return groupName;
     }
@@ -67,5 +69,13 @@ public class SwaggerInfo {
 
     public void setLicense(String license) {
         this.license = license;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 }

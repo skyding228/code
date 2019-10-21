@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Administrator on 2017/6/11 0011.
@@ -45,7 +47,19 @@ public class JsonUtil {
     }
 
     /**
+     * 转换成map，把里面的属性作为key
+     *
+     * @param obj
+     * @return
+     */
+    public static Map<String, Object> toMap(Object obj) {
+        String json = toJson(obj);
+        return fromJson(json, HashMap.class);
+    }
+
+    /**
      * 把json字符串转换为期望的格式
+     *
      * @param json
      * @param klass
      * @param <T>
