@@ -12,11 +12,12 @@
     <groupId>fun.hereis.code</groupId>
     <artifactId>code</artifactId>
     <packaging>pom</packaging>
-    <version>1.10.RLS</version>
+    <version>1.12.RLS</version>
     <modules>
         <module>utils</module>
         <module>spring</module>
         <module>all</module>
+        <module>annotation</module>
         <!--<module>rocketmq</module>-->
     </modules>
 
