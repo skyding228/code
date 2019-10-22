@@ -9,18 +9,39 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "swagger")
 public class SwaggerInfo {
-    private String groupName ="controller";
+    /**
+     * 分组名称
+     */
+    private String groupName = "controller";
 
+    /**
+     * 需要暴露API的controller的基础包,例如 org.wch
+     */
     private String basePackage;
 
-    private String antPath;
+    /**
+     * 根据路径进行配置暴露路径,正则表达式,多个之间用,分隔, 例如/user.*,/menu.*
+     */
+    private String regexPath;
 
+    /**
+     * 文档名称
+     */
     private String title = "HTTP API";
 
+    /**
+     * 文档描述
+     */
     private String description = "Swagger 自动生成接口文档";
 
+    /**
+     * license 信息
+     */
     private String license = "Apache License Version 2.0";
 
+    /**
+     * 指定host文档上调用接口的地址,例如localhost:8080
+     */
     private String host;
 
     public String getGroupName() {
@@ -39,12 +60,12 @@ public class SwaggerInfo {
         this.basePackage = basePackage;
     }
 
-    public String getAntPath() {
-        return antPath;
+    public String getRegexPath() {
+        return regexPath;
     }
 
-    public void setAntPath(String antPath) {
-        this.antPath = antPath;
+    public void setRegexPath(String regexPath) {
+        this.regexPath = regexPath;
     }
 
     public String getTitle() {
