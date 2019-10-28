@@ -27,6 +27,10 @@ public class JsonUtil {
 //     mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     }
 
+    /**
+     * set date formatter
+     * @param dateFormat formatter
+     */
     public static void setDateFormat(DateFormat dateFormat) {
         mapper.setDateFormat(dateFormat);
     }
@@ -49,8 +53,8 @@ public class JsonUtil {
     /**
      * 转换成map，把里面的属性作为key
      *
-     * @param obj
-     * @return
+     * @param obj object
+     * @return map
      */
     public static Map<String, Object> toMap(Object obj) {
         String json = toJson(obj);
@@ -60,10 +64,10 @@ public class JsonUtil {
     /**
      * 把json字符串转换为期望的格式
      *
-     * @param json
-     * @param klass
-     * @param <T>
-     * @return
+     * @param json json 字符串
+     * @param klass response type
+     * @param <T> generics type
+     * @return response object
      */
     public static <T> T fromJson(String json, Class<T> klass) {
         try {

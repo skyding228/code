@@ -101,7 +101,7 @@ public class Lettuce {
 
     /**
      * 同步请求获取整形类型
-     * @param key
+     * @param key key
      * @return null 表示不存在，或其他值
      */
     public static Long getLong(String key){
@@ -112,6 +112,12 @@ public class Lettuce {
         return Long.valueOf(val);
     }
 
+    /**
+     * demo
+     * @param args args
+     * @throws InterruptedException InterruptedException
+     * @throws ExecutionException ExecutionException
+     */
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         sync().set("c", "c");
         sync().set("a", "a");

@@ -139,6 +139,7 @@ public class GuavaCache<V> {
      * @param loader              缓存加载器
      * @param <K>                 缓存键类型
      * @param <V>                 缓存值类型
+     * @param ticker              时钟
      * @return 缓存对象
      */
     public static <K, V> LoadingCache<K, V> asyncRefreshCache(long refreshAfterMinutes, CacheLoader<K, V> loader, Ticker ticker) {

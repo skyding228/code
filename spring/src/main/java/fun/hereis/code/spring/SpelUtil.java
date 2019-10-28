@@ -28,9 +28,9 @@ public class SpelUtil {
     /**
      * 执行spel 表达式
      *
-     * @param spel
-     * @param context
-     * @return
+     * @param spel spel
+     * @param context object
+     * @return result
      */
     public static String exec(String spel, Object context) {
         try {
@@ -51,9 +51,9 @@ public class SpelUtil {
     /**
      * 判断表达式断言是否正确，只有表达式结果返回'true'时才是成功，其他均失败
      *
-     * @param spel
-     * @param context
-     * @return
+     * @param spel spel
+     * @param context object
+     * @return result
      */
     public static boolean predict(String spel, Object context) {
         return Boolean.valueOf(exec(spel, context));
@@ -62,9 +62,9 @@ public class SpelUtil {
     /**
      * 执行spel 模板表达式
      *
-     * @param spel
-     * @param context
-     * @return
+     * @param spel spel
+     * @param context object
+     * @return result
      */
     public static String template(String spel, Object context) {
         try {
@@ -82,6 +82,10 @@ public class SpelUtil {
         return null;
     }
 
+    /**
+     * demo
+     * @param args args
+     */
     public static void main(String[] args) {
         Map<String, String> map = new HashMap<>();
         map.put("剩余", "100M");

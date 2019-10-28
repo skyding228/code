@@ -10,6 +10,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SynchronizedConfig {
 
+    /**
+     * register a bean to container
+     * @return aop config
+     */
     @Bean
     public SynchronizedAOP aop(){
         return new SynchronizedAOP();

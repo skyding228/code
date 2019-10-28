@@ -16,13 +16,6 @@ import java.util.Set;
 @SupportedAnnotationTypes({"*"})
 public class MyAnnotationProcessor extends AbstractProcessor {
 
-
-    /**
-     * {@inheritDoc}
-     *
-     * @param annotations
-     * @param roundEnv
-     */
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         System.out.println("11111111111111111111111111111111111111111111");

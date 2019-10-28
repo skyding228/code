@@ -29,10 +29,12 @@ import java.util.Map;
 
 /**
  * restful 请求工具类
+ * @author weichunhe
+ * created at 2019-10-28
  */
 public class RestUtil {
 
-    static Logger log = LoggerFactory.getLogger(RestUtil.class);
+    private static Logger log = LoggerFactory.getLogger(RestUtil.class);
 
     private static HttpComponentsClientHttpRequestFactory clientHttpRequestFactory;
 
@@ -48,12 +50,12 @@ public class RestUtil {
     /**
      * 发送post 请求
      *
-     * @param rest
-     * @param url
-     * @param param
-     * @param responseType
-     * @param <T>
-     * @return
+     * @param rest rest object or null
+     * @param url url
+     * @param param object
+     * @param responseType response type
+     * @param <T> generics type
+     * @return response object
      */
     public static <T> T postJSON(RestTemplate rest, String url, Object param, Class<T> responseType) {
         if(rest == null){
@@ -68,11 +70,11 @@ public class RestUtil {
     /**
      * 发送post 表单请求
      *
-     * @param url
-     * @param paramMap
-     * @param responseType
-     * @param <T>
-     * @return
+     * @param url url
+     * @param paramMap map
+     * @param responseType responseType
+     * @param <T> generics type
+     * @return response object
      */
     public static <T> T postForm(String url, Map<String, ? extends Object> paramMap, Class<T> responseType) {
         HttpEntity<String> formEntity = makeFormEntity(paramMap);
@@ -98,8 +100,8 @@ public class RestUtil {
     /**
      * 生成json形式的请求头
      *
-     * @param param
-     * @return
+     * @param param object
+     * @return httpEntity
      */
     public static HttpEntity<String> makePostJSONEntity(Object param) {
         HttpHeaders headers = new HttpHeaders();
@@ -111,7 +113,11 @@ public class RestUtil {
         return formEntity;
     }
 
-
+    /**
+     * make a httpEntity with a map
+     * @param param map
+     * @return httpEntity
+     */
     public static HttpEntity<String> makeFormEntity(Map<String, ? extends Object> param) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", FORM_UTF_8);
@@ -126,13 +132,13 @@ public class RestUtil {
     /**
      * 生成Get请求内容
      *
-     * @param param
-     * @param excluedes
-     * @return
+     * @param param map
+     * @param excludes the keys need to be excluded
+     * @return url param
      */
-    public static String makeGetParamContent(Map<String, ? extends Object> param, String... excluedes) {
+    public static String makeGetParamContent(Map<String, ? extends Object> param, String... excludes) {
         StringBuilder content = new StringBuilder();
-        List<String> excludeKeys = Arrays.asList(excluedes);
+        List<String> excludeKeys = Arrays.asList(excludes);
         param.forEach((key, v) -> {
             content.append(key).append("=").append(v).append("&");
         });

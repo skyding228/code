@@ -15,10 +15,20 @@ public class DistributedLock {
      */
     private static Long DEFAULT_LOCK_TIMEOUT = 5 * 60L;
 
+    /**
+     * 获取指定key的分布式锁
+     * @param key redis 中的 key
+     * @return 加锁是否成功
+     */
     public static boolean lock(String key) {
         return lock(key, "1", DEFAULT_LOCK_TIMEOUT);
     }
 
+    /**
+     * 释放指定key的分布式锁
+     * @param key redis 中的 key
+     * @return 解锁是否成功
+     */
     public static boolean unlock(String key) {
         return Lettuce.sync().del(getFullKey(key)) == 1;
     }
@@ -26,10 +36,10 @@ public class DistributedLock {
     /**
      * lock a key with a value
      *
-     * @param key
-     * @param value
-     * @param timeoutSeconds
-     * @return
+     * @param key  key
+     * @param value with a value
+     * @param timeoutSeconds timeout seconds
+     * @return true or false
      */
     public static boolean lock(String key, String value, Long timeoutSeconds) {
 
@@ -50,8 +60,9 @@ public class DistributedLock {
      * only if the locked value equals to the param value ,you can unlock it .
      * It means that only the person who locked it can unlock it, until time out.
      *
-     * @param key
-     * @param value
+     * @param key key
+     * @param value if the value equals to {value} ,to release it,if else do nothing
+     * @return true or false
      */
     public static boolean unlock(String key, String value) {
         String realKey = getFullKey(key);
