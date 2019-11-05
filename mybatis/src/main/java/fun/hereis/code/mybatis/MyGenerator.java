@@ -22,9 +22,9 @@ import java.util.Map;
 public class MyGenerator {
 
     public static void main(String[] args) {
-        String projectDir = "E:\\intelljws\\code\\mybatis";
+        String projectDir = "E:\\intelljws\\smswechat/alialarm";
 
-        String basePackage = "fun.hereis.code.mybatis";
+        String basePackage = "com.cmos.alialarm";
 
 
         AutoGenerator mpg = new AutoGenerator();
