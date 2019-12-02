@@ -3,7 +3,7 @@ $(function() {
     var springfox = {
         "getBaseUrl": function() {
             if (baseUrl === undefined) {
-                var urlMatches = /(.*)\/swagger.html.*/.exec(window.location.href);
+                var urlMatches = /(.*)\/swagger-ch.html.*/.exec(window.location.href);
                 baseUrl = urlMatches[1];
             }
             return baseUrl;
