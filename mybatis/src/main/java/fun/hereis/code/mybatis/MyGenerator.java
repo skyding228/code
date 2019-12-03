@@ -22,9 +22,9 @@ import java.util.Map;
 public class MyGenerator {
 
     public static void main(String[] args) {
-        String projectDir = "E:\\intelljws\\smswechat/alialarm";
+        String projectDir = "E:/intelljws/lottery/service";
 
-        String basePackage = "com.cmos.alialarm";
+        String basePackage = "com.cmos.lottery";
 
 
         AutoGenerator mpg = new AutoGenerator();
@@ -83,16 +83,16 @@ public class MyGenerator {
         dsc.setDriverName("com.mysql.jdbc.Driver");
         dsc.setUsername("sms_qas");
         dsc.setPassword("JLA-89NK");
-        dsc.setUrl("jdbc:mysql://localhost:3306/sms_log?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true");
+        dsc.setUrl("jdbc:mysql://localhost:3306/sms_pt?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true");
         mpg.setDataSource(dsc);
 
         StrategyConfig strategy = new StrategyConfig();
         //the controller、service、mapper names will remove the prefix
-        strategy.setTablePrefix("");
+        strategy.setTablePrefix("act_");
         strategy.setNaming(NamingStrategy.underline_to_camel);// 表名生成策略
 
         //TODO
-        strategy.setInclude("ali_alarm_morse"
+        strategy.setInclude("act_activity","act_prize","act_channel"
 //                , "tb_app_customer_base","tb_app_customer_base_detail","tb_app_customer_base_menu"
         );
 

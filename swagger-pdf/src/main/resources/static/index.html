@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文件操作</title>
+</head>
+<body>
+<form action="file/upload" method="post" enctype="multipart/form-data">
+    <input type="file" placeholder="选择文件" name="file"/>
+    <br/>
+    <select name="convert2Pdf">
+        <option value="false" selected>否</option>
+        <option value="true">转Swagger文档成Pdf</option>
+    </select>
+
+    <input type="submit" value="上传"/>
+</form>
+<br/>
+<form action="file/download" method="get" enctype="multipart/form-data">
+    <input type="text" placeholder="输入文件名" name="fileName"/>
+    <input type="submit" value="下载"/>
+</form>
+</body>
+</html>
