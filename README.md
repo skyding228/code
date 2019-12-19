@@ -8,6 +8,17 @@ The parent project.
 - utils
 many static util methods.
 
+# swagger 使用nginx配置之后host不正确
+- 方法1：修改nginx配置
+https://blog.csdn.net/Javamine/article/details/87433289
+```text
+proxy_set_header X-Forwarded-Host $host;
+proxy_set_header X-Forwarded-Port $server_port;
+```
+
+- 方法2: 配置固定host
+在application.properties 配置swagger.host
+
 # guava cache
 - getIfPresent 与 get 区别
 
