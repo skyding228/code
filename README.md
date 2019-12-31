@@ -20,6 +20,9 @@ proxy_set_header X-Forwarded-Port $server_port;
 在application.properties 配置swagger.host
 
 # guava cache
+- 异步刷新
+异步刷新的第一次会同步加载
+
 - getIfPresent 与 get 区别
 
 get会触发加载，无论同步异步，如果不存在时就会进行加载。
