@@ -5,12 +5,12 @@
     <parent>
         <artifactId>code</artifactId>
         <groupId>fun.hereis.code</groupId>
-        <version>1.14.RLS</version>
+        <version>1.15.RLS</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>spring</artifactId>
-    <version>1.14.RLS</version>
+    <version>1.15.RLS</version>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>fun.hereis.code</groupId>
             <artifactId>utils</artifactId>
-            <version>1.14.RLS</version>
+            <version>1.15.RLS</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
