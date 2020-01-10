@@ -25,6 +25,9 @@ public class Reflections {
 
     /**
      * 调用Getter方法. 支持多级，如：对象名.对象名.方法
+     * @param obj 对象
+     * @param propertyName 属性名
+     * @return 属性值
      */
     public static Object invokeGetter(Object obj, String propertyName) {
         Object object = obj;
@@ -39,6 +42,9 @@ public class Reflections {
 
     /**
      * 调用Setter方法, 仅匹配方法名。 支持多级，如：对象名.对象名.方法
+     * @param obj 对象
+     * @param propertyName 属性名
+     * @param value 值
      */
     public static void invokeSetter(Object obj, String propertyName,
                                     Object value) {
@@ -61,6 +67,9 @@ public class Reflections {
 
     /**
      * 直接读取对象属性值, 无视private/protected修饰符, 不经过getter函数.
+     * @param obj 对象
+     * @param fieldName 属性名
+     * @return 属性值
      */
     public static Object getFieldValue(final Object obj, final String fieldName) {
         Field field = getAccessibleField(obj, fieldName);
@@ -81,6 +90,9 @@ public class Reflections {
 
     /**
      * 直接设置对象属性值, 无视private/protected修饰符, 不经过setter函数.
+     * @param obj 对象
+     * @param fieldName 属性名
+     * @param value 值
      */
     public static void setFieldValue(final Object obj, final String fieldName,
                                      final Object value) {
@@ -101,6 +113,11 @@ public class Reflections {
     /**
      * 直接调用对象方法, 无视private/protected修饰符.
      * 用于一次性调用的情况，否则应使用getAccessibleMethod()函数获得Method后反复调用. 同时匹配方法名+参数类型，
+     * @param obj 对象
+     * @param methodName 方法名
+     * @param parameterTypes 参数类型
+     * @param args 参数
+     * @return 执行结果
      */
     public static Object invokeMethod(final Object obj,
                                       final String methodName, final Class<?>[] parameterTypes,
@@ -122,6 +139,10 @@ public class Reflections {
      * 直接调用对象方法, 无视private/protected修饰符，
      * 用于一次性调用的情况，否则应使用getAccessibleMethodByName()函数获得Method后反复调用.
      * 只匹配函数名，如果有多个同名函数调用第一个。
+     * @param obj 对象
+     * @param methodName 方法名
+     * @param args 参数
+     * @return 执行结果
      */
     public static Object invokeMethodByName(final Object obj,
                                             final String methodName, final Object[] args) {
@@ -142,6 +163,9 @@ public class Reflections {
      * 循环向上转型, 获取对象的DeclaredField, 并强制设置为可访问.
      * <p>
      * 如向上转型到Object仍无法找到, 返回null.
+     * @param obj 对象
+     * @param fieldName 属性名
+     * @return 属性
      */
     public static Field getAccessibleField(final Object obj,
                                            final String fieldName) {
@@ -167,6 +191,10 @@ public class Reflections {
      * <p>
      * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.invoke(Object obj, Object...
      * args)
+     * @param obj 对象
+     * @param methodName 方法名
+     * @param parameterTypes 参数类型
+     * @return 方法
      */
     public static Method getAccessibleMethod(final Object obj,
                                              final String methodName, final Class<?>... parameterTypes) {
@@ -193,6 +221,9 @@ public class Reflections {
      * <p>
      * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.invoke(Object obj, Object...
      * args)
+     * @param obj 对象
+     * @param methodName 方法名
+     * @return 方法
      */
     public static Method getAccessibleMethodByName(final Object obj,
                                                    final String methodName) {
@@ -214,6 +245,7 @@ public class Reflections {
 
     /**
      * 改变private/protected的方法为public，尽量不调用实际改动的语句，避免JDK的SecurityManager抱怨。
+     * @param method 方法
      */
     public static void makeAccessible(Method method) {
         if ((!Modifier.isPublic(method.getModifiers()) || !Modifier
@@ -225,6 +257,7 @@ public class Reflections {
 
     /**
      * 改变private/protected的成员变量为public，尽量不调用实际改动的语句，避免JDK的SecurityManager抱怨。
+     * @param field 字段
      */
     public static void makeAccessible(Field field) {
         if ((!Modifier.isPublic(field.getModifiers())
@@ -235,10 +268,10 @@ public class Reflections {
     }
 
     /**
-     * 通过反射, 获得Class定义中声明的泛型参数的类型, 注意泛型必须定义在父类处 如无法找到, 返回Object.class. eg.
-     * public UserDao extends HibernateDao<User>
+     通过反射, 获得Class定义中声明的泛型参数的类型, 注意泛型必须定义在父类处 如无法找到, 返回Object.class. eg.
      *
      * @param clazz The class to introspect
+     * @param <T> 泛型
      * @return the first generic declaration, or Object.class if cannot be
      * determined
      */
@@ -249,8 +282,6 @@ public class Reflections {
 
     /**
      * 通过反射, 获得Class定义中声明的父类的泛型参数的类型. 如无法找到, 返回Object.class.
-     * <p>
-     * 如public UserDao extends HibernateDao<User,Long>
      *
      * @param clazz clazz The class to introspect
      * @param index the Index of the generic declaration,start from 0.
@@ -277,20 +308,10 @@ public class Reflections {
         return (Class) params[index];
     }
 
-    public static Class<?> getUserClass(Object instance) {
-        Class clazz = instance.getClass();
-        if (clazz != null && clazz.getName().contains(CGLIB_CLASS_SEPARATOR)) {
-            Class<?> superClass = clazz.getSuperclass();
-            if (superClass != null && !Object.class.equals(superClass)) {
-                return superClass;
-            }
-        }
-        return clazz;
-
-    }
-
     /**
      * 将反射时的checked exception转换为unchecked throwable.
+     * @param e 异常
+     * @return 转换后的异常
      */
     public static RuntimeException convertReflectionExceptionToUnchecked(
             Exception e) {

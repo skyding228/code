@@ -14,67 +14,39 @@ import java.util.Date;
  * created at 2018/12/7
  */
 public class TimeUtil {
-    public static DateTimeFormatter TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    /**
+     * 标准时间格式 yyyy-MM-dd HH:mm:ss
+     */
+    public static DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    /**
+     * 只有日期的格式 yyyy-MM-dd
+     */
+    public static DateTimeFormatter DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public static DateTimeFormatter DAY = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public static long MILLS_PER_SECOND = 1000L;
-
-    public static long MILLS_PER_MINUTE = 60 * MILLS_PER_SECOND;
-
-    public static long MILLS_PER_HOUR = 60 * MILLS_PER_MINUTE;
-
-    public static long MILLS_PER_DAY = 24 * MILLS_PER_HOUR;
-
-    public static long THIRTY_DAYS = 30 * MILLS_PER_DAY;
-
-    public static boolean isAnHourLater(Date date) {
-        return date.getTime() - System.currentTimeMillis() > MILLS_PER_HOUR;
+    /**
+     * 格式化成标准时间格式  yyyy-MM-dd HH:mm:ss
+     * @param date 日期
+     * @return 格式化后的字符串
+     */
+    public static String formatStandardTime(Date date) {
+        return convertFromDate(date).format(DATE_TIME);
     }
 
-    public static boolean is30DaysAgo(Date date) {
-        if (date == null) {
-            return false;
-        }
-        return System.currentTimeMillis() - date.getTime() > THIRTY_DAYS;
+    /**
+     * 格式化标准日期格式
+     * @param date 日期
+     * @return yyyy-MM-dd
+     */
+    public static String formatDate(Date date) {
+        return convertFromDate(date).format(DATE);
     }
 
-    public static boolean isBeforeNow(Date date) {
-        return System.currentTimeMillis() - date.getTime() >= 0;
-    }
-
-    public static boolean isAfterNow(Date date) {
-        return System.currentTimeMillis() - date.getTime() <= 0;
-    }
-
-    public static String formatToTime(Date date) {
-        return convertFromDate(date).format(TIME);
-    }
-
-    public static String formatToDay(Date date) {
-        return convertFromDate(date).format(DAY);
-    }
-
-    public static Date minutesAfterNow(int minutes) {
-        return new Date(System.currentTimeMillis() + minutes * MILLS_PER_MINUTE);
-    }
-
-    public static Date theEndOfToday() {
-        return theEndOfDay(0);
-    }
-
-    public static Date theBeginningOfToday() {
-        return theBeginningOfDay(0);
-    }
-
-    public static Date theEndOfYesterday() {
-        return theEndOfDay(-1);
-    }
-
-    public static Date theBeginningOfYesterday() {
-        return theBeginningOfDay(-1);
-    }
-
+    /**
+     * 判断是否是今天
+     * @param date 日期
+     * @return boolean
+     */
     public static boolean isToday(Date date) {
         if (date == null) {
             return false;
@@ -86,7 +58,7 @@ public class TimeUtil {
      * 获取某一天的开始时间 00:00:00
      *
      * @param days 0 表示今天,正数表示以后，负数表示之前
-     * @return
+     * @return 日期
      */
     public static Date theBeginningOfDay(int days) {
         LocalDateTime todayBeginning = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
@@ -98,7 +70,7 @@ public class TimeUtil {
      * 获取某一天的结束时间 23:59:59
      *
      * @param days 0 表示今天,正数表示以后，负数表示之前
-     * @return
+     * @return 日期
      */
     public static Date theEndOfDay(int days) {
         LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59));
@@ -106,11 +78,20 @@ public class TimeUtil {
         return convertFromLocalDateTime(todayEnd);
     }
 
-
+    /**
+     * 时间类型转换
+     * @param date 日期
+     * @return jdk8 时间类型
+     */
     public static LocalDateTime convertFromDate(Date date) {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
+    /**
+     * 时间类型转换
+     * @param localDateTime jdk8时间类型
+     * @return 日期
+     */
     public static Date convertFromLocalDateTime(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
