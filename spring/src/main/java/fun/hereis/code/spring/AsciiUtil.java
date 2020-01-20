@@ -24,8 +24,8 @@ import static org.asciidoctor.Asciidoctor.Factory.create;
 public class AsciiUtil {
     /**
      * 生成静态文件
-     * @param swaggerUrl
-     * @param outputDir
+     * @param swaggerUrl swagger 地址
+     * @param outputDir 生成目录
      */
     public void staticFile(String swaggerUrl,String outputDir){
         URL remoteSwaggerFile = null;
