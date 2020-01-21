@@ -8,7 +8,7 @@ package fun.hereis.code.spring;
  */
 public class AliRobot {
 
-    private static String url = System.getProperty("dingtalk", "https://oapi.dingtalk.com/robot/send?access_token=4c932e6309d3ffe9b92de6e69e293accaab8568a84c213ff4e2d3ec8d5c5868d");
+    private String url = System.getProperty("dingtalk", "https://oapi.dingtalk.com/robot/send?access_token=4c932e6309d3ffe9b92de6e69e293accaab8568a84c213ff4e2d3ec8d5c5868d");
 
     private static OkHttp okHttp = OkHttp.createInstanceWithProxy();
 
@@ -16,27 +16,36 @@ public class AliRobot {
 
     /**
      * 推送通知
+     *
      * @param text markdown通知内容，https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/9e91d73c
-     * @return 响应结果
      */
-    public static Rsp notice(String text){
-        return robot.send(text,"【通知】");
+    public static void notice(String text) {
+        robot.send(text, "【通知】");
     }
 
     /**
      * 推送告警信息
+     *
      * @param text markdown通知内容，https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/9e91d73c
-     * @return 响应结果
      */
-    public static Rsp warn(String text){
-        return robot.send(text,"【告警】");
+    public static void warn(String text) {
+        robot.send(text, "【告警】");
     }
 
-    private Rsp send(String text,String title) {
-        MarkdownMsg msg = new MarkdownMsg(text,title);
+    /**
+     * 发送消息
+     *
+     * @param text  markdown通知内容，https://ding-doc.dingtalk.com/doc#/serverapi2/qf2nxq/9e91d73c
+     * @param title 首屏会话透出的展示内容
+     */
+    public void send(String text, String title) {
+        MarkdownMsg msg = new MarkdownMsg(text, title);
         System.out.println(JsonUtil.toJson(msg));
-        Rsp rsp = okHttp.post(url, msg, Rsp.class);
-        return rsp;
+        okHttp.asyncPost(url, msg, OkHttp.defaultCallBack);
+    }
+
+    public static void main(String[] args) {
+        warn("测试结果");
     }
 
     public class Markdown {
@@ -59,11 +68,12 @@ public class AliRobot {
             this.text = text;
         }
     }
+
     public class MarkdownMsg {
         private String msgtype = "markdown";
         private Markdown markdown;
 
-        public MarkdownMsg(String content,String title){
+        public MarkdownMsg(String content, String title) {
             markdown = new Markdown();
             markdown.text = content;
             markdown.title = title;
@@ -86,40 +96,5 @@ public class AliRobot {
         }
     }
 
-    public static class Rsp {
-        /**
-         * 0:成功
-         */
-        private Integer errcode;
-
-        private String errmsg;
-
-        public Integer getErrcode() {
-            return errcode;
-        }
-
-        public void setErrcode(Integer errcode) {
-            this.errcode = errcode;
-        }
-
-        public String getErrmsg() {
-            return errmsg;
-        }
-
-        public void setErrmsg(String errmsg) {
-            this.errmsg = errmsg;
-        }
-
-        public boolean isSuccess(){
-            return Integer.valueOf(0).equals(errcode);
-        }
-        @Override
-        public String toString() {
-            return "Rsp{" +
-                    "errcode=" + errcode +
-                    ", errmsg='" + errmsg + '\'' +
-                    '}';
-        }
-    }
 
 }

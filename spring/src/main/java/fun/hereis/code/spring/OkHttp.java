@@ -2,6 +2,7 @@ package fun.hereis.code.spring;
 
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -59,7 +60,7 @@ public class OkHttp {
      *
      * @param url 地址
      * @return 响应结果
-     * @throws Exception 异常
+     * @throws IOException 异常
      */
     public String get(String url) throws IOException {
         Request request = new Request.Builder().url(url).build();
@@ -72,21 +73,18 @@ public class OkHttp {
         }
     }
 
-
     /**
      * 同步post json数据
      *
      * @param url   地址
      * @param param 参数
+     * @param returnType 响应结果类型
+     * @param <R>
      * @return 结果
      */
     public <R> R post(String url, Object param, Class<R> returnType) {
-        String json = null;
-        if (param instanceof String) {
-            json = (String) param;
-        } else {
-            json = JsonUtil.toJson(param);
-        }
+        String json = JsonUtil.toJson(param);
+        ;
         RequestBody body = RequestBody.create(json, JSON);
         Request request = new Request.Builder().url(url).post(body).build();
 
@@ -106,10 +104,49 @@ public class OkHttp {
         return null;
     }
 
+    /**
+     * 异步post json数据
+     *
+     * @param url   地址
+     * @param param 参数
+     * @param callback 回调函数
+     */
+    public void asyncPost(String url, Object param, Callback callback) {
+        String json = JsonUtil.toJson(param);
+        RequestBody body = RequestBody.create(json, JSON);
+        Request request = new Request.Builder().url(url).post(body).build();
+        enqueue(request, callback);
+    }
+
 
     private Response execute(Request request) throws IOException {
         return okHttpClient.newCall(request).execute();
     }
 
+    /**
+     * 开启异步线程访问网络, 且不在意返回结果（实现空callback）
+     *
+     * @param request 请求体
+     * @param callback 回调函数
+     */
+    private void enqueue(Request request, Callback callback) {
+        okHttpClient.newCall(request).enqueue(callback);
+    }
 
+    /**
+     * 异步默认回调方法
+     */
+    public static Callback defaultCallBack = new Callback() {
+        @Override
+        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+            System.out.println(call.request().toString());
+            e.printStackTrace();
+        }
+
+        @Override
+        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+            System.out.println(call.request().toString());
+            System.out.println(response.body().string());
+        }
+    };
 }
