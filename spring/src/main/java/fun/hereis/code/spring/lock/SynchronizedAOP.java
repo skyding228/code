@@ -44,10 +44,16 @@ public class SynchronizedAOP {
         String value = UUID.randomUUID().toString();
         String methodName = getFullMethodName(joinPoint);
         boolean locked = DistributedLock.lock(key, value, sync.timeoutSeconds());
+        long executionTime = sync.minExecuteSeconds() * 1000;
+        long start = System.currentTimeMillis();
         if (locked) {
             LOG.info("lock {} to {}", key, value);
             try {
                 joinPoint.proceed(joinPoint.getArgs());
+                long remain = System.currentTimeMillis() - start - executionTime;
+                if(remain > 0){
+                    Thread.sleep(remain);
+                }
             } catch (Throwable throwable) {
                 LOG.error("An error occurs while executing {} ", methodName, throwable);
             } finally {
