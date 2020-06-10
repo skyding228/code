@@ -29,6 +29,7 @@ public class JsonUtil {
 
     /**
      * set date formatter
+     *
      * @param dateFormat formatter
      */
     public static void setDateFormat(DateFormat dateFormat) {
@@ -43,6 +44,9 @@ public class JsonUtil {
      */
     public static String toJson(Object obj) {
         try {
+            if (obj instanceof String) {
+                return (String) obj;
+            }
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
             LOG.error("to json exception.", e);
@@ -64,18 +68,22 @@ public class JsonUtil {
     /**
      * 把json字符串转换为期望的格式
      *
-     * @param json json 字符串
+     * @param json  json 字符串
      * @param klass response type
-     * @param <T> generics type
+     * @param <T>   generics type
      * @return response object
      */
     public static <T> T fromJson(String json, Class<T> klass) {
         try {
+            if (klass.isAssignableFrom(String.class)) {
+                return (T) json;
+            }
             return mapper.readValue(json, klass);
         } catch (IOException e) {
             LOG.error("from json exception.", e);
         }
         return null;
     }
+
 }
 
