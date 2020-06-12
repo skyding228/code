@@ -48,6 +48,20 @@ public class AliRobot {
         warn("测试结果");
     }
 
+    public AliRobot() {
+    }
+
+    /**
+     * 创建一个指定地址的实例
+     * @param url 告警地址
+     * @return
+     */
+    public static AliRobot newInstance(String url) {
+        AliRobot robot = new AliRobot();
+        robot.url = url;
+        return robot;
+    }
+
     public class Markdown {
         private String title;
         private String text;
