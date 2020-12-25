@@ -1,6 +1,14 @@
 # common code 
 Here are many really common codes which are used while coding javaweb project especially developed with spring framework.
 
+#发布
+<server>
+      <id>MavenCentral</id>
+      <username>skyding</username>
+      <password>1qaz4#EDC</password>
+</server>
+mvn deploy wch17
+
 # projects
 - code 
 The parent project.
