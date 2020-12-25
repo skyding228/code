@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>效果对比图</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/MotionPathPlugin.min.js"></script>
+    <script src="http://a.hereis.fun/alijs/DrawSVGPlugin3.min.js"></script>
+    <style>
+        /**/
+        body {
+            background-color:white;
+            text-align:center;
+            color: #777;
+        }
+
+        #slider {
+            width:400px;
+            margin:30px auto;
+            background-color: #222;
+            display: inline-block;
+        }
+
+        #slider, #slider a {
+            background-image: none;
+            border: 1px solid #555;
+        }
+        #slider a {
+            background-color: #444;
+        }
+        .graph{
+
+        }
+        .hidden{
+            display: none;
+        }
+        .axis{
+            stroke: #8c8c8c;
+            stroke-width:3px;
+        }
+        line,polyline{
+            stroke-width: 3px;
+        }
+        .guideline{
+            stroke: black;
+            stroke-width: 1px;
+            stroke-dasharray:10,10;
+        }
+        .tip{
+            fill: black;
+        }
+
+        .roadmap{
+
+        }
+        .roadmaptip{
+
+        }
+    </style>
+</head>
+<body>
+<svg version="1.1" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+	 x="0px" y="0px" width="1200px" height="700px" viewBox="0 0 1200 700" xml:space="preserve">
+    <!--x-->
+    <line id="x" x1="100" y1="600" x2="1100" y2="600" class="axis"/>
+    <!--y-->
+    <line id="y" x1="100" y1="600" x2="100" y2="100" class="axis" />
+    <!--bitmap-->
+    <line id="bitmap" class="graph hidden" x1="100" y1="350" x2="1100" y2="350" style="stroke:#13c2c2;"/>
+
+    <line id="allinone" class="graph hidden" x1="100" y1="597" x2="300" y2="100" style="stroke:#1890ff;"/>
+
+    <line class="guideline hidden" x1="200" y1="350" x2="200" y2="600"></line>
+
+    <line class="guideline hidden" x1="300" y1="560" x2="300" y2="600"></line>
+    <line class="guideline hidden" x1="100" y1="560" x2="300" y2="560"></line>
+
+    <line class="roadmap hidden" x1="100" y1="598" x2="1100" y2="400" stroke="#52c41a"></line>
+
+    <text class="hidden tip" x="80" y="615" >(0,0)</text>
+    <text class="hidden tip" x="200" y="615" >1000</text>
+    <text class="hidden tip" x="300" y="615" >2000</text>
+    <text class="hidden tip" x="1050" y="615" >10000(万)</text>
+    <text class="hidden tip" x="70" y="100" >1000(M)</text>
+    <text class="hidden tip" x="70" y="350" >500</text>
+    <text class="hidden tip" x="70" y="560" >80</text>
+
+    <text class="hidden tip" x="180" y="200" style="fill:#1890ff">AllInOne</text>
+    <text class="hidden tip" x="400" y="340" style="fill:#13c2c2">BitMap</text>
+    <text class="hidden tip" x="310" y="540" style="fill:#52c41a">IntSet</text>
+    <text class="hidden roadmaptip" x="800" y="430" style="fill:#52c41a">IntSet 期望线</text>
+    <polyline id="intset" class="graph hidden" fill="none" stroke="#52c41a" stroke-miterlimit="10" points="100,598 200,580 300,560 300,100"/>
+
+</svg>
+</body>
+</html>
+<script type="text/javascript">
+    gsap.registerPlugin(MotionPathPlugin,DrawSVGPlugin);
+
+    function showClass(c) {
+        var gs =  document.getElementsByClassName(c);
+        for (var i=0; i< gs.length; i++){
+            gs[i].classList.remove("hidden");
+        }
+    }
+    var shapes = "polyline,line",
+        tl = gsap.timeline({repeat:0, yoyo:false});
+
+    tl.fromTo("#x,#y", {drawSVG:"0%"}, {duration: 1, drawSVG:"100%", stagger: 0.1,  ease: "bounce", onComplete:function () {
+            showClass("graph")
+        }})
+        .fromTo(".graph", {drawSVG:"0%"}, {duration: 1, drawSVG:"100%", immediateRender:false, onComplete:function () {
+                showClass("guideline");
+
+                showClass("tip")
+            }})
+    // .fromTo(".guideline", {drawSVG:"0%"}, {duration: 1, drawSVG:"100%", immediateRender:false})
+        .to(".guideline",{duration:1,strokeDasharray:10, onComplete:function () {
+            }});
+
+    var t2 = gsap.timeline({repeat:10000, yoyo:true});
+    setTimeout(function() {
+
+        showClass('roadmap')
+        t2.fromTo("#intset", {drawSVG: "100%"}, {
+            duration: 5, drawSVG: "0%", stagger: 0.1, ease: "bounce", onComplete: function () {
+            }
+        }).fromTo(".roadmap", {drawSVG: "0%"}, {
+            duration: 0.1, drawSVG: "100%", stagger: 0.1, ease: "bounce", onComplete: function () {
+                showClass('roadmaptip');
+            }
+        }) .to(".roadmap",{duration:6,strokeDasharray:20, onComplete:function () {
+            }});
+    },4000);
+    // .to(shapes, {duration: 1, drawSVG:"90% 100%", stagger: 0.5})
+        // .to(shapes, {duration: 1, rotation:360, scale:0.5, drawSVG:"100%", stroke:"white", strokeWidth:6, transformOrigin:"50% 50%"})
+        // .to(shapes, {duration: 0.5, stroke:"red", scale:1.5, opacity:0, stagger: 0.2})
+</script>

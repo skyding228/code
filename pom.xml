@@ -20,6 +20,7 @@
         <module>annotation</module>
         <module>mybatis</module>
         <module>swagger-pdf</module>
+        <module>lollipop</module>
         <!--<module>rocketmq</module>-->
     </modules>
 
