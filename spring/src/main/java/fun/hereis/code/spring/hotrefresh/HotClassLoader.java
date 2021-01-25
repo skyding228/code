@@ -15,22 +15,17 @@ import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * spring 热加载器
  * @author weichunhe
  * created at 2021/1/25
  */
 public class HotClassLoader extends ClassLoader {
 
-    private static HotClassLoader hotClassLoader =new HotClassLoader(HotClassLoader.class.getClassLoader());
+    private static HotClassLoader hotClassLoader =new HotClassLoader();
 
-    private final String baseUrl = "http://a.hereis.fun/alijs/";
+    private static String baseUrl = "http://a.hereis.fun/alijs/";
     private static final String suffix = ".class";
+    private static final ClassLoader parent = HotClassLoader.class.getClassLoader();
 
-    private ClassLoader parent;
-
-    protected HotClassLoader(ClassLoader parent){
-        this.parent = parent;
-    }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
@@ -105,4 +100,14 @@ public class HotClassLoader extends ClassLoader {
         return newBean;
     }
 
+    /**
+     * 设置查找类的基础地址
+     * @param baseUrl
+     */
+    public static void setBaseUrl(String baseUrl){
+        if(!baseUrl.endsWith("/")){
+            baseUrl += "/";
+        }
+        HotClassLoader.baseUrl = baseUrl;
+    }
 }
