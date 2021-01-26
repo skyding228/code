@@ -13,6 +13,8 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author weichunhe
@@ -20,16 +22,16 @@ import java.net.URLConnection;
  */
 public class HotClassLoader extends ClassLoader {
 
-    private static HotClassLoader hotClassLoader =new HotClassLoader();
 
     private static String baseUrl = "http://a.hereis.fun/alijs/";
     private static final String suffix = ".class";
     private static final ClassLoader parent = HotClassLoader.class.getClassLoader();
 
+    private static Map<String/*beanName*/,HotLoadedInfo> loadedBeanMap = new HashMap<>();
+
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-
         if (!name.endsWith(suffix)) {
             return parent.loadClass(name);
         }
@@ -72,6 +74,7 @@ public class HotClassLoader extends ClassLoader {
     public static <T> T reload(Class<T> tClass, ConfigurableApplicationContext applicationContext, String beanName){
         Object bean = null;
         try {
+            HotClassLoader hotClassLoader =new HotClassLoader();
             bean = hotClassLoader.loadClass(tClass.getName()+suffix).newInstance();
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,23 +84,28 @@ public class HotClassLoader extends ClassLoader {
         autowireCapableBeanFactory.autowireBean(bean);
         autowireCapableBeanFactory.initializeBean(bean,beanName);
         DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory ) applicationContext.getBeanFactory();
-        if(applicationContext.containsBean(beanName)){
-            defaultListableBeanFactory.destroySingleton(beanName);
+        final Object object = bean;
+
+        HotLoadedInfo loadedInfo = loadedBeanMap.get(beanName);
+        if (loadedInfo == null){
+            if(applicationContext.containsBean(beanName)){
+                defaultListableBeanFactory.destroySingleton(beanName);
+            }
+            loadedInfo = new HotLoadedInfo();
+            Enhancer enhancer = new Enhancer();
+            enhancer.setSuperclass(tClass);
+            ProxyMethodInterceptor proxyMethodInterceptor = new ProxyMethodInterceptor();
+            proxyMethodInterceptor.setDelegate(object);
+            loadedInfo.setProxyMethodInterceptor(proxyMethodInterceptor);
+            enhancer.setCallback(proxyMethodInterceptor);
+            T newBean = (T) enhancer.create();
+            defaultListableBeanFactory.registerSingleton(beanName,newBean);
+            loadedBeanMap.put(beanName,loadedInfo);
+        }else {
+            loadedInfo.getProxyMethodInterceptor().setDelegate(object);
         }
 
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(tClass);
-        final Object object = bean;
-        enhancer.setCallback(new MethodInterceptor() {
-            @Override
-            public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
-                Method proxyMethod = object.getClass().getMethod(method.getName(),method.getParameterTypes());
-                return proxyMethod.invoke(object,objects);
-            }
-        });
-        T newBean = (T) enhancer.create();
-        defaultListableBeanFactory.registerSingleton(beanName,newBean);
-        return newBean;
+        return (T) applicationContext.getBean(beanName);
     }
 
     /**
