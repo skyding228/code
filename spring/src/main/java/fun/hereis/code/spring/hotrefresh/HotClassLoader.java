@@ -104,8 +104,9 @@ public class HotClassLoader extends ClassLoader {
         }else {
             loadedInfo.getProxyMethodInterceptor().setDelegate(object);
         }
-
-        return (T) applicationContext.getBean(beanName);
+        T loaded = (T) applicationContext.getBean(beanName);
+        System.out.println(tClass.getName()+" hotreload.");
+        return loaded;
     }
 
     /**
