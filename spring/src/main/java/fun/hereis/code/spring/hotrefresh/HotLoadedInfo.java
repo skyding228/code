@@ -8,6 +8,7 @@ public class HotLoadedInfo {
 
     private ProxyMethodInterceptor proxyMethodInterceptor;
 
+    private Object proxy;
 
     public ProxyMethodInterceptor getProxyMethodInterceptor() {
         return proxyMethodInterceptor;
@@ -15,5 +16,13 @@ public class HotLoadedInfo {
 
     public void setProxyMethodInterceptor(ProxyMethodInterceptor proxyMethodInterceptor) {
         this.proxyMethodInterceptor = proxyMethodInterceptor;
+    }
+
+    public Object getProxy() {
+        return proxy;
+    }
+
+    public void setProxy(Object proxy) {
+        this.proxy = proxy;
     }
 }

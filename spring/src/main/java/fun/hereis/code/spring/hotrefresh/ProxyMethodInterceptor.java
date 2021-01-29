@@ -22,4 +22,8 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
     public void setDelegate(Object delegate) {
         this.delegate = delegate;
     }
+
+    public Object getDelegate() {
+        return delegate;
+    }
 }

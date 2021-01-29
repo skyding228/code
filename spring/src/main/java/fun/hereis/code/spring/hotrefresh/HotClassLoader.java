@@ -3,9 +3,8 @@ package fun.hereis.code.spring.hotrefresh;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
@@ -86,11 +85,10 @@ public class HotClassLoader extends ClassLoader {
         DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory ) applicationContext.getBeanFactory();
         final Object object = bean;
 
+        execAfterHotLoad(bean);
         HotLoadedInfo loadedInfo = loadedBeanMap.get(beanName);
         if (loadedInfo == null){
-            if(applicationContext.containsBean(beanName)){
-                defaultListableBeanFactory.destroySingleton(beanName);
-            }
+
             loadedInfo = new HotLoadedInfo();
             Enhancer enhancer = new Enhancer();
             enhancer.setSuperclass(tClass);
@@ -99,13 +97,30 @@ public class HotClassLoader extends ClassLoader {
             loadedInfo.setProxyMethodInterceptor(proxyMethodInterceptor);
             enhancer.setCallback(proxyMethodInterceptor);
             T newBean = (T) enhancer.create();
-            defaultListableBeanFactory.registerSingleton(beanName,newBean);
+            loadedInfo.setProxy(newBean);
+            if(applicationContext.containsBean(beanName)){
+                String[] dependents = defaultListableBeanFactory.getDependentBeans(beanName);
+                for (String dependent : dependents) {
+                    Object dependentBean = applicationContext.getBean(dependent);
+                    ManualInject.buildAutowiringMetadata(dependentBean.getClass()).wire(dependentBean,newBean);
+                }
+                String[] dependencies = defaultListableBeanFactory.getDependenciesForBean(beanName);
+                for (String dependency : dependencies) {
+                    if(loadedBeanMap.containsKey(dependency)){
+                        ManualInject.buildAutowiringMetadata(bean.getClass()).wire(bean,loadedBeanMap.get(dependency).getProxy());
+                    }
+                }
+            }else {
+                defaultListableBeanFactory.registerSingleton(beanName,newBean);
+            }
+
             loadedBeanMap.put(beanName,loadedInfo);
         }else {
             loadedInfo.getProxyMethodInterceptor().setDelegate(object);
         }
         T loaded = (T) applicationContext.getBean(beanName);
         System.out.println(tClass.getName()+" hotreload.");
+
         return loaded;
     }
 
@@ -119,4 +134,19 @@ public class HotClassLoader extends ClassLoader {
         }
         HotClassLoader.baseUrl = baseUrl;
     }
+
+    private static void execAfterHotLoad(Object bean){
+        Method[] methods = bean.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            if(AnnotatedElementUtils.hasAnnotation(method,AfterHotLoad.class)){
+                try {
+                    method.invoke(bean);
+                    System.out.println(method.getName()+" 执行成功!");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 }
