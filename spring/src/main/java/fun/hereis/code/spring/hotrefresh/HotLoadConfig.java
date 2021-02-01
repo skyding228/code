@@ -11,7 +11,10 @@ import org.springframework.web.context.WebApplicationContext;
  */
 @Configuration
 public class HotLoadConfig {
-
+    /**
+     * 暴露controller
+     * @return
+     */
     @Bean
     public HotLoadController controller(){
         return new HotLoadController();

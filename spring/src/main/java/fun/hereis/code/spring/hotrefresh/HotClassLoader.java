@@ -38,21 +38,15 @@ public class HotClassLoader extends ClassLoader {
         try {
             String path = baseUrl + name;
             URL url = new URL(path);
-            // 连接类的父类，抽象类
             URLConnection urlConnection = url.openConnection();
-            // http的连接类
             HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
             //设置超时
             httpURLConnection.setConnectTimeout(1000*15);
-            //设置请求方式，默认是GET
             httpURLConnection.setRequestMethod("GET");
-            // 设置字符编码
             httpURLConnection.setRequestProperty("Charset", "UTF-8");
-            // 打开到此 URL引用的资源的通信链接（如果尚未建立这样的连接）。
             httpURLConnection.connect();
 
             byte[] bytes = StreamUtils.copyToByteArray(httpURLConnection.getInputStream());
-
             return defineClass(name.replace(suffix,""), bytes, 0, bytes.length);
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,7 +58,7 @@ public class HotClassLoader extends ClassLoader {
 
     /**
      * 重新加载bean
-     * @param tClass 需要重新加载的类
+     * @param tClass 需要重新加载的类型
      * @param applicationContext spring 容器
      * @param beanName 需要重新加载的bean名称
      * @param <T> 重新加载类型
@@ -135,7 +129,7 @@ public class HotClassLoader extends ClassLoader {
 
     /**
      * 设置查找类的基础地址
-     * @param baseUrl
+     * @param baseUrl 基础地址
      */
     public static void setBaseUrl(String baseUrl){
         if(!baseUrl.endsWith("/")){
@@ -144,6 +138,10 @@ public class HotClassLoader extends ClassLoader {
         HotClassLoader.baseUrl = baseUrl;
     }
 
+    /**
+     * 执行加载后的方法
+     * @param bean
+     */
     private static void execAfterHotLoad(Object bean){
         Method[] methods = bean.getClass().getDeclaredMethods();
         for (Method method : methods) {

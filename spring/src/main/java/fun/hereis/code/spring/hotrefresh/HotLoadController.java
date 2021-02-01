@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
+ * 热加载http端点
  * @author weichunhe
  * created at 2021/1/28
  */
@@ -20,6 +21,11 @@ public class HotLoadController {
 
     private int version = 0;
 
+    /**
+     * 热加载路径
+     * @param param 热加载参数
+     * @return
+     */
     @GetMapping("/load")
     public String load(HotLoadParam param){
         Class targetClass = null;
@@ -38,4 +44,5 @@ public class HotLoadController {
         HotClassLoader.reload(targetClass, (ConfigurableApplicationContext) applicationContext,param.getBeanName());
         return "success";
     }
+
 }

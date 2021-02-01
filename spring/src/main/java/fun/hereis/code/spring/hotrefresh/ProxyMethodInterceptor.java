@@ -6,6 +6,7 @@ import org.springframework.cglib.proxy.MethodProxy;
 import java.lang.reflect.Method;
 
 /**
+ * 方法拦截类
  * @author weichunhe
  * created at 2021/1/26
  */
@@ -23,7 +24,4 @@ public class ProxyMethodInterceptor implements MethodInterceptor {
         this.delegate = delegate;
     }
 
-    public Object getDelegate() {
-        return delegate;
-    }
 }

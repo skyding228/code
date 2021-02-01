@@ -76,6 +76,11 @@ public class ManualInject {
         return null;
     }
 
+    /**
+     * 扫描所有的方法和属性找到添加了Autowired注解的方法及属性，包含父类
+     * @param clazz 需要扫描的类
+     * @return 手动注入相关信息
+     */
     public static ManualInject buildAutowiringMetadata(final Class<?> clazz) {
 
         Class<?> targetClass = clazz;
