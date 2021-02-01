@@ -1,5 +1,6 @@
 package fun.hereis.code.spring.hotrefresh;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -31,6 +32,9 @@ public class HotLoadController {
             return "已执行，本次跳过!";
         }
         version = param.getVersion();
+        if(StringUtils.isNotEmpty(param.getBaseUrl())){
+            HotClassLoader.setBaseUrl(param.getBaseUrl());
+        }
         HotClassLoader.reload(targetClass, (ConfigurableApplicationContext) applicationContext,param.getBeanName());
         return "success";
     }

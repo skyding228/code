@@ -21,6 +21,9 @@ public class HotLoadParam {
     @ApiModelProperty("同一个版本只执行一次")
     private int version;
 
+    @ApiModelProperty("基础地址，请求时会加上classFulName.class")
+    private String baseUrl;
+
 
     public String getClassFullName() {
         return classFullName;
@@ -44,6 +47,14 @@ public class HotLoadParam {
 
     public void setBeanName(String beanName) {
         this.beanName = beanName;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
     }
 
     @Override

@@ -85,10 +85,8 @@ public class HotClassLoader extends ClassLoader {
         DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory ) applicationContext.getBeanFactory();
         final Object object = bean;
 
-        execAfterHotLoad(bean);
         HotLoadedInfo loadedInfo = loadedBeanMap.get(beanName);
         if (loadedInfo == null){
-
             loadedInfo = new HotLoadedInfo();
             Enhancer enhancer = new Enhancer();
             enhancer.setSuperclass(tClass);
@@ -100,10 +98,21 @@ public class HotClassLoader extends ClassLoader {
             loadedInfo.setProxy(newBean);
             if(applicationContext.containsBean(beanName)){
                 String[] dependents = defaultListableBeanFactory.getDependentBeans(beanName);
-                for (String dependent : dependents) {
-                    Object dependentBean = applicationContext.getBean(dependent);
-                    ManualInject.buildAutowiringMetadata(dependentBean.getClass()).wire(dependentBean,newBean);
+                //没有依赖它的bean，就重新注册一下
+                if(dependents.length == 0){
+                    defaultListableBeanFactory.destroySingleton(beanName);
+                    defaultListableBeanFactory.registerSingleton(beanName,newBean);
+                }else {
+                    for (String dependent : dependents) {
+                        Object dependentBean = applicationContext.getBean(dependent);
+                        ManualInject.buildAutowiringMetadata(dependentBean.getClass()).wire(dependentBean,newBean);
+                    }
+                    Map<String, Object> singletons = (Map<String, Object>) defaultListableBeanFactory.getSingletonMutex();
+                    if(singletons.containsKey(beanName)){
+                        singletons.put(beanName,newBean);
+                    }
                 }
+
                 String[] dependencies = defaultListableBeanFactory.getDependenciesForBean(beanName);
                 for (String dependency : dependencies) {
                     if(loadedBeanMap.containsKey(dependency)){
@@ -118,10 +127,10 @@ public class HotClassLoader extends ClassLoader {
         }else {
             loadedInfo.getProxyMethodInterceptor().setDelegate(object);
         }
-        T loaded = (T) applicationContext.getBean(beanName);
-        System.out.println(tClass.getName()+" hotreload.");
 
-        return loaded;
+        execAfterHotLoad(bean);
+        System.out.println(tClass.getName()+" hotreload.");
+        return (T) loadedInfo.getProxy();
     }
 
     /**
