@@ -1,2 +1,2 @@
 #org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.zx.sms.swagger.SwaggerConfiguration
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=fun.hereis.code.spring.fun.hereis.code.hotrefresh.HotLoadConfig
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=fun.hereis.code.spring.hotrefresh.HotLoadConfig
