@@ -45,7 +45,7 @@ public class DynamicResourceTransformer implements ResourceTransformer {
     /**
      * 明文内容的文件后缀
      */
-    private List<String> textSuffixes = Lists.newArrayList(".html", ".htm", ".js");
+    private List<String> textSuffixes = Lists.newArrayList(".html", ".htm", ".js", ".css");
 
     @Autowired
     public void init(@Qualifier("resourceHandlerMapping") HandlerMapping resourceHandlerMapping,
