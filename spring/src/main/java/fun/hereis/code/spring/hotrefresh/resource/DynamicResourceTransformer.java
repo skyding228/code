@@ -1,6 +1,8 @@
 package fun.hereis.code.spring.hotrefresh.resource;
 
+import com.google.common.collect.Lists;
 import fun.hereis.code.spring.Redis;
+import fun.hereis.code.utils.CollectionUtil;
 import fun.hereis.code.utils.cache.GuavaCache;
 import io.lettuce.core.internal.HostAndPort;
 import org.slf4j.Logger;
@@ -8,8 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
@@ -17,10 +21,13 @@ import org.springframework.web.servlet.resource.ResourceTransformer;
 import org.springframework.web.servlet.resource.ResourceTransformerChain;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author weichunhe
@@ -31,7 +38,14 @@ public class DynamicResourceTransformer implements ResourceTransformer {
     private static Logger logger = LoggerFactory.getLogger(DynamicResourceTransformer.class);
     private final String CACHE_KEY = "activity:dynamic:resource:hash";
     private Redis redis;
-    private GuavaCache<Map<String, String>> resourceCache = null;
+    private GuavaCache<Map<String, FileSystemResource>> resourceCache = null;
+
+    @Value("${server.context-path:/}")
+    private String contextPath;
+    /**
+     * 明文内容的文件后缀
+     */
+    private List<String> textSuffixes = Lists.newArrayList(".html", ".htm", ".js");
 
     @Autowired
     public void init(@Qualifier("resourceHandlerMapping") HandlerMapping resourceHandlerMapping,
@@ -48,14 +62,39 @@ public class DynamicResourceTransformer implements ResourceTransformer {
         if (isReachable(redisNodes)) {
             redis = Redis.newInstance(redisNodes, redisPassword);
             resourceCache = GuavaCache.asyncGuavaCache(5, () -> {
-                Map<String, String> cache = redis.sync().hgetall(CACHE_KEY);
-                if (cache == null) {
-                    cache = new HashMap<>();
-                }
-                logger.info("DynamicResourceTransformer cached resources : {}", cache.keySet());
-                return cache;
+                List<String> fileNames = redis.sync().hkeys(CACHE_KEY);
+                logger.info("DynamicResourceTransformer cached resources : {}", fileNames);
+                return cacheResource(fileNames);
             });
         }
+    }
+
+    private Map<String, FileSystemResource> cacheResource(List<String> names) {
+        Map<String, FileSystemResource> resourceMap = new HashMap<>();
+        if (CollectionUtil.isEmpty(names)) {
+            return resourceMap;
+        }
+        for (String name : names) {
+            //只加载本应用内的
+            if (!name.startsWith(contextPath)) {
+                continue;
+            }
+            String content = redis.sync().hget(CACHE_KEY, name);
+            try {
+                File file = new File(name.replaceAll("[/\\/]", "_"));
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
+                //判断是否是明文文件,否则要进行base64解码
+                Optional<String> textSuffix = textSuffixes.stream().filter(name::endsWith).findFirst();
+                byte[] bytes = textSuffix.isPresent() ? content.getBytes() : Base64Utils.decodeFromString(content);
+                FileCopyUtils.copy(bytes, file);
+                resourceMap.put(name, new FileSystemResource(file));
+            } catch (IOException e) {
+                logger.error("DynamicResourceTransformer load cache error. {}", name, e);
+            }
+        }
+        return resourceMap;
     }
 
     private boolean isReachable(String nodes) {
@@ -86,11 +125,11 @@ public class DynamicResourceTransformer implements ResourceTransformer {
             return resource;
         }
         //无需转换
-        String value = resourceCache.get().get(path);
+        FileSystemResource value = resourceCache.get().get(path);
         if (value == null) {
             return resource;
         }
         logger.info("DynamicResourceTransformer transformed " + path);
-        return new ByteArrayResource(value.getBytes());
+        return value;
     }
 }
