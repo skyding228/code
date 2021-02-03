@@ -16,6 +16,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
+ * redis客户端
+ * 静态方法默认读取 redis.properties 中的redis.nodes 和 redis.password 进行创建集群连接
  * @author weichunhe
  * created at 19-8-17
  */
@@ -27,12 +29,15 @@ public class Lettuce {
 
     private static StatefulRedisConnection<String, String> connection;
 
-    private static Properties redisProps = ClasspathPropertyUtil.load("redis.properties");
 
-    private static Set<HostAndPort> nodes = getNodes();
-
-    static {
+    private static void init() {
+        if(clusterConnection != null || connection != null){
+            return;
+        }
+        Properties redisProps = ClasspathPropertyUtil.load("redis.properties");
+        String address = redisProps.getProperty("redis.nodes", "localhost:6379");
         String password = (String) redisProps.get("redis.password");
+        Set<HostAndPort> nodes = getNodes(address);
         if (nodes.size() == 1) {
             //get the only one host and port
             HostAndPort hostAndPort = nodes.toArray(new HostAndPort[1])[0];
@@ -44,24 +49,7 @@ public class Lettuce {
             connection = client.connect();
         } else {
             isCluster = true;
-            List<RedisURI> uris = new ArrayList<>();
-            nodes.forEach(n -> {
-                RedisURI uri = RedisURI.create(n.getHostText(), n.getPort());
-                if (StringUtils.isNotEmpty(password)) {
-                    uri.setPassword(password);
-                }
-                uris.add(uri);
-            });
-            RedisClusterClient clusterClient = RedisClusterClient.create(uris);
-            ClusterTopologyRefreshOptions topologyRefreshOptions = ClusterTopologyRefreshOptions.builder()
-//                    .enablePeriodicRefresh(true)
-                    .enableAllAdaptiveRefreshTriggers()
-                    .build();
-
-            clusterClient.setOptions(ClusterClientOptions.builder()
-                    .topologyRefreshOptions(topologyRefreshOptions)
-                    .build());
-            clusterConnection = clusterClient.connect();
+            clusterConnection = connect(address,password);
         }
     }
 
@@ -69,9 +57,38 @@ public class Lettuce {
     }
 
     /**
+     * 连接一个redis集群
+     * @param clusterNodes 集群地址，多个节点用,拼接
+     * @param password 集群密码,无密码时为空
+     * @return 集群连接，sync/async 进行同步/异步调用
+     */
+    public static StatefulRedisClusterConnection<String, String> connect(String clusterNodes,String password){
+        Set<HostAndPort> nodes = getNodes(clusterNodes);
+        List<RedisURI> uris = new ArrayList<>();
+        nodes.forEach(n -> {
+            RedisURI uri = RedisURI.create(n.getHostText(), n.getPort());
+            if (StringUtils.isNotEmpty(password)) {
+                uri.setPassword(password);
+            }
+            uris.add(uri);
+        });
+        RedisClusterClient clusterClient = RedisClusterClient.create(uris);
+        ClusterTopologyRefreshOptions topologyRefreshOptions = ClusterTopologyRefreshOptions.builder()
+                .enablePeriodicRefresh(true)
+                .enableAllAdaptiveRefreshTriggers()
+                .build();
+
+        clusterClient.setOptions(ClusterClientOptions.builder()
+                .topologyRefreshOptions(topologyRefreshOptions)
+                .build());
+        return clusterClient.connect();
+    }
+
+    /**
      * @return 同步命令
      */
     public static RedisClusterCommands<String, String> sync() {
+        init();
         return isCluster ? clusterConnection.sync() : connection.sync();
     }
 
@@ -79,6 +96,7 @@ public class Lettuce {
      * @return 异步命令
      */
     public static RedisClusterAsyncCommands<String, String> async() {
+        init();
         return isCluster ? clusterConnection.async() : connection.async();
     }
 
@@ -87,9 +105,8 @@ public class Lettuce {
      *
      * @return
      */
-    private static Set<HostAndPort> getNodes() {
-        String config = redisProps.getProperty("redis.nodes", "localhost:6379");
-        String[] addresses = config.replaceAll(" +", "").split(",");
+    private static Set<HostAndPort> getNodes( String nodes) {
+        String[] addresses = nodes.replaceAll(" +", "").split(",");
         Set<HostAndPort> hostAndPorts = new HashSet<>();
         for (String address : addresses) {
             if (StringUtils.isNotEmpty(address)) {
@@ -97,53 +114,6 @@ public class Lettuce {
             }
         }
         return hostAndPorts;
-    }
-
-    /**
-     * 同步请求获取整形类型
-     * @param key key
-     * @return null 表示不存在，或其他值
-     */
-    public static Long getLong(String key){
-        String val = sync().get(key);
-        if (org.springframework.util.StringUtils.isEmpty(val)) {
-            return null;
-        }
-        return Long.valueOf(val);
-    }
-
-    /**
-     * demo
-     * @param args args
-     * @throws InterruptedException InterruptedException
-     * @throws ExecutionException ExecutionException
-     */
-    public static void main(String[] args) throws InterruptedException, ExecutionException {
-        sync().set("c", "c");
-        sync().set("a", "a");
-        sync().set("ac", "aacc");
-        async().get("a")
-                .thenApply(v -> {
-                    System.out.println(v);
-                    return v;
-                })
-                .thenCombine(async().get("c"), (a, c) -> {
-                    System.out.println(a + c);
-                    return a + c;
-                })
-                .thenCompose(v -> {
-                    System.out.println(v);
-                    return async().get(v);
-                })
-                .thenAccept(v -> {
-                    System.out.println(v);
-                })
-                .thenRun(() -> {
-                    System.out.println("run");
-                });
-        System.out.println("sync==" + sync().get("a"));
-        Thread.sleep(1000);
-
     }
 
 }
