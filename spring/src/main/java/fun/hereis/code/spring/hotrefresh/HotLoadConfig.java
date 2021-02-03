@@ -1,5 +1,6 @@
 package fun.hereis.code.spring.hotrefresh;
 
+import fun.hereis.code.spring.hotrefresh.resource.DynamicResourceTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,5 +19,10 @@ public class HotLoadConfig {
     @Bean
     public HotLoadController controller(){
         return new HotLoadController();
+    }
+
+    @Bean
+    public DynamicResourceTransformer transformer(){
+        return new DynamicResourceTransformer();
     }
 }
