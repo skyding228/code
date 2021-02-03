@@ -49,7 +49,7 @@ public class Lettuce {
             connection = client.connect();
         } else {
             isCluster = true;
-            clusterConnection = connect(address,password);
+            clusterConnection = cluster(address,password);
         }
     }
 
@@ -62,7 +62,7 @@ public class Lettuce {
      * @param password 集群密码,无密码时为空
      * @return 集群连接，sync/async 进行同步/异步调用
      */
-    public static StatefulRedisClusterConnection<String, String> connect(String clusterNodes,String password){
+    public static StatefulRedisClusterConnection<String, String> cluster(String clusterNodes,String password){
         Set<HostAndPort> nodes = getNodes(clusterNodes);
         List<RedisURI> uris = new ArrayList<>();
         nodes.forEach(n -> {
