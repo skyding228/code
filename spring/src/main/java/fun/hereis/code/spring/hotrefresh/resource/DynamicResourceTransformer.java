@@ -129,7 +129,7 @@ public class DynamicResourceTransformer implements ResourceTransformer {
         if (value == null) {
             return resource;
         }
-        logger.info("DynamicResourceTransformer transformed " + path);
+        logger.debug("DynamicResourceTransformer transformed " + path);
         return value;
     }
 }
