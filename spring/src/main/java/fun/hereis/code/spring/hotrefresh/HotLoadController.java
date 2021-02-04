@@ -7,6 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+
 /**
  * 热加载http端点
  * @author weichunhe
@@ -26,7 +30,7 @@ public class HotLoadController {
      * @param param 热加载参数
      * @return
      */
-    @GetMapping("/load")
+    @RequestMapping("/load")
     public String load(HotLoadParam param){
         Class targetClass = null;
         try {
@@ -42,6 +46,11 @@ public class HotLoadController {
             HotClassLoader.setBaseUrl(param.getBaseUrl());
         }
         HotClassLoader.reload(targetClass, (ConfigurableApplicationContext) applicationContext,param.getBeanName());
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         return "success";
     }
 
