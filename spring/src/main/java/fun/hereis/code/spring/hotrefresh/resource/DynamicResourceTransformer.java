@@ -81,7 +81,7 @@ public class DynamicResourceTransformer implements ResourceTransformer {
             }
             String content = redis.sync().hget(CACHE_KEY, name);
             try {
-                File file = new File(name.replaceAll("[/\\/]", "_"));
+                File file = new File(name.replaceAll("[/\\\\]", "_"));
                 if (!file.exists()) {
                     file.createNewFile();
                 }
